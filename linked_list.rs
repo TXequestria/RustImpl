@@ -512,14 +512,22 @@ impl<T> IntoIterator for LinkedList<T> {
 }
 
 use std::marker::{Send,Sync};
-
+//holds data, so Send/Sync the same with T
 unsafe impl<T: Send> Send for IntoIter<T> {}
 unsafe impl<T: Sync> Sync for IntoIter<T> {}
 
 unsafe impl<T: Send> Send for LinkedList<T> {}
 unsafe impl<T: Sync> Sync for LinkedList<T> {}
 
-/* I am not sure
+//Iter,Cursor are refs, I think Send for Iter/Cursor means sync for T
+unsafe impl<'a, T: Sync> Send for Iter<'a, T> {} 
+unsafe impl<'a, T: Sync> Send for Cursor<'a, T> {}
+
+//&mut T is exclusive, so send if T is send
+unsafe impl<'a, T: Send> Send for IterMut<'a, T> {}
+unsafe impl<'a, T: Send> Send for CursorMut<'a, T> {}
+
+/* I am not sure, but the too many list author says this is fine
 unsafe impl<'a, T: Send> Send for Iter<'a, T> {}
 unsafe impl<'a, T: Sync> Sync for Iter<'a, T> {}
 
